@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heavenly Relaxation</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #87CEEB, #ffffff);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .cloud {
+            position: absolute;
+            width: 150px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.2);
+            opacity: 0.8;
+            animation: float 10s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(100vw); }
+        }
+        .message {
+            font-size: 24px;
+            color: #4A4A4A;
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Your Heavenly Escape</h1>
+    <p class="message">Relax, breathe, and enjoy the peace...</p>
+    <audio autoplay loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-relaxing.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        function createCloud() {
+            let cloud = document.createElement("div");
+            cloud.className = "cloud";
+            cloud.style.top = Math.random() * window.innerHeight + "px";
+            document.body.appendChild(cloud);
+        }
+        setInterval(createCloud, 3000);
+    </script>
+</body>
+</html>
