@@ -1,51 +1,121 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heavenly Relaxation</title>
-    <style>
-        body {
-            background: linear-gradient(to bottom, #87CEEB, #ffffff);
-            text-align: center;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        .cloud {
-            position: absolute;
-            width: 150px;
-            height: 100px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 10px 10px 20px rgba(0,0,0,0.2);
-            opacity: 0.8;
-            animation: float 10s infinite linear;
-        }
-        @keyframes float {
-            0% { transform: translateX(-200px); }
-            100% { transform: translateX(100vw); }
-        }
-        .message {
-            font-size: 24px;
-            color: #4A4A4A;
-            margin-top: 100px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Punjab Public Transport</title>
+    <meta name="theme-color" content="#0a66c2">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <h1>Welcome to Your Heavenly Escape</h1>
-    <p class="message">Relax, breathe, and enjoy the peace...</p>
-    <audio autoplay loop>
-        <source src="https://www.bensound.com/bensound-music/bensound-relaxing.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
+    <div id="language-screen" class="language-screen" aria-modal="true" role="dialog">
+        <div class="language-card">
+            <h2 data-i18n="choose_language">Choose Language</h2>
+            <div class="language-grid" id="language-grid"></div>
+        </div>
+    </div>
+
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo">🚍</div>
+            <div class="title">Punjab Transport</div>
+        </div>
+        <div class="header-actions">
+            <button id="btn-choose-language" class="btn secondary" data-i18n="choose_language">Choose Language</button>
+            <button id="btn-open-settings" class="btn icon" title="Settings">⚙️</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="dashboard">
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="live_map">Live Map</h3>
+                        <div class="status" id="map-status">Google Maps: <span id="gmaps-status">Loading…</span></div>
+                    </div>
+                    <div id="map" class="map"></div>
+                    <div class="card-actions">
+                        <button id="btn-start-tracking" class="btn primary" data-i18n="start_tracking">Start Tracking</button>
+                        <button id="btn-stop-tracking" class="btn danger" data-i18n="stop_tracking">Stop Tracking</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="assistant">Amigo Assistant</h3>
+                        <div id="voice-status" class="status">Voice: <span id="voice-capability">Detecting…</span></div>
+                    </div>
+                    <div class="assistant-controls">
+                        <button id="btn-voice-toggle" class="btn mic" aria-pressed="false">
+                            <span class="mic-icon">🎙️</span>
+                            <span id="mic-label" data-i18n="hold_to_talk">Hold to talk</span>
+                        </button>
+                        <div class="waves" id="listening-waves" hidden>
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div class="tts-controls">
+                            <button id="btn-voice-test" class="btn secondary" data-i18n="test_voice">Test Voice</button>
+                            <button id="btn-voice-auto" class="btn secondary" data-active="false" data-i18n="auto_listen">Auto Listen</button>
+                            <select id="voice-language"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 data-i18n="chat_with_amigo">Chat with Amigo</h3>
+                </div>
+                <div id="chat" class="chat">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <form id="chat-form" class="chat-form">
+                        <input id="chat-input" type="text" placeholder="Type a message…" autocomplete="off" />
+                        <button class="btn primary" type="submit" data-i18n="send">Send</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="fab-amigo" class="fab">🤖</div>
+    <button id="btn-back" class="btn back">←</button>
+
+    <div id="settings-dialog" class="modal" hidden>
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 data-i18n="settings">Settings</h3>
+                <button id="btn-close-settings" class="btn icon">✖</button>
+            </div>
+            <div class="modal-body">
+                <label class="field">
+                    <span>Google Maps API Key</span>
+                    <input id="input-gmaps-key" type="password" placeholder="AIza…" />
+                </label>
+                <label class="field">
+                    <span>Supabase URL</span>
+                    <input id="input-supabase-url" type="text" placeholder="https://YOUR_PROJECT.supabase.co" />
+                </label>
+                <label class="field">
+                    <span>Supabase anon key</span>
+                    <input id="input-supabase-key" type="password" placeholder="eyJhbGci…" />
+                </label>
+                <div class="hint">Values are stored locally in your browser.</div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-save-settings" class="btn primary" data-i18n="save">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function createCloud() {
-            let cloud = document.createElement("div");
-            cloud.className = "cloud";
-            cloud.style.top = Math.random() * window.innerHeight + "px";
-            document.body.appendChild(cloud);
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
         }
-        setInterval(createCloud, 3000);
     </script>
+    <script type="module" src="/app.js"></script>
 </body>
 </html>
